@@ -1,4 +1,4 @@
-# 言い返しシミュレーター 💬⚡
+# 言い返しシミュレーター
 
 現実では言い返せないアンチコメントに、思いっきり言い返せるWebゲーム。
 架空のSNS「Chirpy」に投稿 → アンチコメントが付く → 言い返す → AIの審判が採点して、うまく返せたら **NICE REPLY!** の演出が出ます。
@@ -32,7 +32,7 @@
 
 ## GitHub Pages での公開
 
-ビルド不要の静的サイトです（`index.html` / `style.css` / `app.js`）。
+ビルド不要の静的サイトです（`index.html` / `style.css` / `icons.js` / `app.js`）。アイコンはすべてSVGで、絵文字は使っていません。
 
 1. リポジトリの **Settings → Pages** を開く
 2. **Source** を「Deploy from a branch」、ブランチを公開したいブランチ、フォルダを `/ (root)` にして保存

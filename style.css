@@ -40,7 +40,7 @@ a { color: var(--accent); }
 /* ---------- 設定画面 ---------- */
 #setup { padding: 20px 16px 32px; gap: 16px; }
 .setup-hero { text-align: center; padding: 16px 0 4px; }
-.logo { font-size: 44px; animation: bob 2.4s ease-in-out infinite; }
+.logo { width: 64px; height: 64px; margin: 0 auto; animation: bob 2.4s ease-in-out infinite; }
 .setup-hero h1 { margin: 6px 0; font-size: 30px; line-height: 1.15; letter-spacing: .02em; }
 .setup-hero h1 span {
   background: linear-gradient(90deg, var(--good), var(--accent), var(--gold));
@@ -86,7 +86,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   border-radius: 12px; padding: 10px 0; background: var(--panel-2); border: 2px solid transparent;
   display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 12px;
 }
-.level-btn b { font-size: 20px; }
+.lv-avatar { width: 32px; height: 32px; }
 .level-btn.selected { border-color: var(--lv-color, var(--accent)); box-shadow: 0 0 16px -4px var(--lv-color); }
 .level-desc { margin: 10px 0 0; font-size: 13px; color: var(--muted); line-height: 1.6; min-height: 3.2em; }
 .level-desc strong { color: var(--text); }
@@ -110,7 +110,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   display: flex; align-items: center; gap: 12px; padding: 10px 12px;
   border-bottom: 1px solid var(--line); background: rgba(11,13,18,.85); backdrop-filter: blur(8px);
 }
-.icon-btn { background: transparent; padding: 4px 10px; font-size: 20px; }
+.icon-btn { background: transparent; padding: 4px 8px; width: 40px; height: 36px; display: grid; place-items: center; }
 .brand { font-weight: 900; font-size: 20px; letter-spacing: .02em; flex: 1; }
 .meta { display: flex; gap: 8px; align-items: center; font-size: 12px; }
 .badge { padding: 3px 8px; border-radius: 999px; background: var(--lv-color, var(--accent)); color: #000; font-weight: 800; }
@@ -129,7 +129,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 }
 .gauge-center { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; background: rgba(255,255,255,.35); }
 .gauge-knob {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 20px;
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 28px; height: 28px;
   transition: left .9s cubic-bezier(.2,1.4,.4,1); filter: drop-shadow(0 0 6px rgba(0,0,0,.8));
 }
 .combo { position: absolute; right: 14px; bottom: -22px; font-weight: 900; color: var(--gold); font-size: 14px; z-index: 2; text-shadow: 0 0 8px rgba(255,210,63,.6); }
@@ -141,8 +141,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .post.main { padding-top: 16px; }
 .post.main .body { font-size: 17px; }
 .avatar {
-  flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-size: 22px;
-  background: var(--panel-2);
+  flex: none; width: 42px; height: 42px; border-radius: 50%; overflow: hidden;
 }
 .post.reply-thread::before {
   content: ""; position: absolute; left: 34px; top: 0; height: 12px; width: 2px; background: var(--line);
@@ -155,7 +154,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .replying b { color: var(--accent); font-weight: 500; }
 .body { margin-top: 4px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
 .actions { display: flex; gap: 28px; margin-top: 8px; color: var(--muted); font-size: 13px; }
-.actions span { display: inline-flex; gap: 5px; align-items: center; transition: color .3s; }
+.actions > span { display: inline-flex; gap: 5px; align-items: center; transition: color .3s; }
 .actions .like.hot { color: #f91880; }
 .actions .like.bump { animation: pop .45s ease-out; }
 
@@ -192,6 +191,12 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .composer-actions { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
 .char-count { flex: 1; text-align: right; color: var(--muted); font-size: 12px; }
 
+/* ---------- アイコン ---------- */
+svg { display: block; width: 100%; height: 100%; }
+.icon { display: inline-block; width: 1.15em; height: 1.15em; flex: none; vertical-align: -.2em; }
+.system-note .icon, .verdict .audience .icon, .best-reply b .icon { margin-right: 6px; }
+.verdict .audience .icon { width: 1em; height: 1em; }
+
 /* ---------- 演出 ---------- */
 .flash { position: fixed; inset: 0; pointer-events: none; opacity: 0; z-index: 50; }
 .flash.on { animation: flash .9s ease-out; }
@@ -222,7 +227,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   position: absolute; left: 50%; top: 50%; width: var(--s, 10px); height: var(--s, 10px); border-radius: 2px;
   background: var(--c); animation: burst var(--d, 1s) cubic-bezier(.1,.8,.3,1) forwards;
 }
-.ember { position: absolute; bottom: -20px; font-size: var(--s, 28px); left: var(--x); animation: rise var(--d, 1.4s) ease-in forwards; }
+.ember { position: absolute; bottom: -50px; width: var(--s, 28px); height: var(--s, 28px); left: var(--x); animation: rise var(--d, 1.4s) ease-in forwards; }
 .crack { position: absolute; inset: 0; background:
   linear-gradient(115deg, transparent 48%, rgba(255,255,255,.6) 49%, transparent 50%),
   linear-gradient(35deg, transparent 58%, rgba(255,255,255,.45) 59%, transparent 60%),

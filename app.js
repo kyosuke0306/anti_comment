@@ -15,7 +15,7 @@ const START_GAUGE = 50;
 const LEVELS = [
   {
     lv: 1, label: "雑魚", color: "#7ee787",
-    name: "ひまじん", handle: "@hima_jin_0721", avatar: "🐣",
+    name: "ひまじん", handle: "@hima_jin_0721", avatar: "lv1",
     maxTurns: 10, threshold: 30, gain: 0.6, loss: 0.3,
     desc: "<strong>Lv1 かまってちゃん</strong>：語彙も論理もない。ちょっと言い返せばすぐ黙る。",
     persona: "語彙力が乏しく、根拠のない短い悪口しか言えないかまってちゃん。小学生のような煽り方(「草」「だっさ」「きも」など)。言い返されるとすぐに動揺し、論点がずれ、言い訳がましくなる。打たれ弱い。",
@@ -23,7 +23,7 @@ const LEVELS = [
   },
   {
     lv: 2, label: "通りすがり", color: "#56d4dd",
-    name: "通りすがりの者", handle: "@tooriska_ri", avatar: "🚶",
+    name: "通りすがりの者", handle: "@tooriska_ri", avatar: "lv2",
     maxTurns: 10, threshold: 40, gain: 0.55, loss: 0.4,
     desc: "<strong>Lv2 通りすがり</strong>：上から目線で余計な一言。論理は浅め。",
     persona: "頼まれてもいないのに上から目線で余計な一言を言う通りすがり。「普通は〜」「〜するのが常識」といった浅い一般論で否定する。論理は浅く、具体的に反論されると話をそらすか捨て台詞で逃げがち。",
@@ -31,7 +31,7 @@ const LEVELS = [
   },
   {
     lv: 3, label: "正論マン", color: "#79c0ff",
-    name: "正論bot（自称）", handle: "@seiron_ojisan", avatar: "🧐",
+    name: "正論bot（自称）", handle: "@seiron_ojisan", avatar: "lv3",
     maxTurns: 10, threshold: 50, gain: 0.5, loss: 0.5,
     desc: "<strong>Lv3 自称正論マン</strong>：それっぽい理屈で攻めてくる。ちゃんと反論しないと押し負ける。",
     persona: "自分は正論を言っていると信じ込んでいる理屈っぽいアカウント。「〜と思うのですが」「論理的に考えて」と丁寧語風に、それっぽい理屈で批判する。反論されると別の角度から再攻撃してくるが、明確に論理の穴を突かれると苦しくなる。",
@@ -39,7 +39,7 @@ const LEVELS = [
   },
   {
     lv: 4, label: "皮肉屋", color: "#d2a8ff",
-    name: "冷笑系インフルエンサー", handle: "@reisho_kei", avatar: "😏",
+    name: "冷笑系インフルエンサー", handle: "@reisho_kei", avatar: "lv4",
     maxTurns: 10, threshold: 60, gain: 0.5, loss: 0.65,
     desc: "<strong>Lv4 冷笑系インフルエンサー</strong>：皮肉とマウントの達人。取り巻きもいて手強い。",
     persona: "フォロワーの多い冷笑系インフルエンサー。皮肉、嘲笑、マウント、揚げ足取りが得意で、相手の言葉の一部を切り取って茶化す。「必死で草」「効いてて草」のように相手を感情的に見せようとする。余裕ぶっているが、本質を突いた冷静な指摘には弱い。",
@@ -47,7 +47,7 @@ const LEVELS = [
   },
   {
     lv: 5, label: "論破王", color: "#ff7b72",
-    name: "レスバ最強の論破王", handle: "@ronpa_king", avatar: "👑",
+    name: "レスバ最強の論破王", handle: "@ronpa_king", avatar: "lv5",
     maxTurns: 10, threshold: 70, gain: 0.5, loss: 0.85,
     desc: "<strong>Lv5 レスバ最強の論破王</strong>：一切動揺しない最強の論客。論点ずらし・揚げ足・データ風の主張を駆使する。生半可な返しは即カウンター。",
     persona: "レスバで負けたことがない最強の論破王。常に冷静で余裕があり、絶対に感情的にならない。相手の発言の矛盾・曖昧さ・感情的な部分を一つ残らず拾って突く。論点のすり替え、揚げ足取り、ストローマン、「それってあなたの感想ですよね」「データあります？」のような詭弁も巧みに使う。少し追い詰められても話題を変えて巻き返そうとし、簡単には負けを認めない。相手の返信の最も弱い部分に的確にカウンターする。",
@@ -56,12 +56,12 @@ const LEVELS = [
 ];
 
 const PRESET_POSTS = [
-  "初めて手料理作ってみた！ハンバーグ、ちょっと焦げたけど美味しかった🍳",
-  "ギター始めて3ヶ月。やっと1曲通して弾けるようになった🎸",
-  "フルマラソン完走しました！タイムは5時間半だけど最後まで走りきった🏃",
-  "今日から毎日イラスト投稿します。下手だけど続けるのが目標✏️",
-  "転職して1年。前の職場より給料は下がったけど毎日楽しい😊",
-  "推しのライブ遠征してきた！人生で一番幸せな日だった🎤",
+  "初めて手料理作ってみた！ハンバーグ、ちょっと焦げたけど美味しかった！",
+  "ギター始めて3ヶ月。やっと1曲通して弾けるようになった",
+  "フルマラソン完走しました！タイムは5時間半だけど最後まで走りきった",
+  "今日から毎日イラスト投稿します。下手だけど続けるのが目標",
+  "転職して1年。前の職場より給料は下がったけど毎日楽しい",
+  "推しのライブ遠征してきた！人生で一番幸せな日だった",
 ];
 
 const state = {
@@ -310,8 +310,7 @@ function renderPost({ who, text, main = false, likes = 0, replies = 0, rts = 0 }
   const L = state.level;
   const isMe = who === "me";
   const post = el("article", `post ${main ? "main" : "reply-thread"} ${isMe ? "mine" : "anti"}`);
-  const avatar = el("div", "avatar", isMe ? "🙂" : L.avatar);
-  if (isMe) avatar.style.background = "linear-gradient(135deg,#1d9bf0,#7856ff)";
+  const avatar = iconEl(isMe ? "me" : L.avatar, "avatar");
   const content = el("div", "content");
   const head = el("div", "head");
   head.append(
@@ -327,9 +326,9 @@ function renderPost({ who, text, main = false, likes = 0, replies = 0, rts = 0 }
   }
   content.append(el("div", "body", text));
   const actions = el("div", "actions");
-  const reply = el("span", "reply", `💬 ${fmt(replies)}`);
-  const rt = el("span", "rt", `🔁 ${fmt(rts)}`);
-  const like = el("span", "like", `♡ ${fmt(likes)}`);
+  const reply = counter("reply", "reply", replies);
+  const rt = counter("rt", "repost", rts);
+  const like = counter("like", "heart", likes);
   actions.append(reply, rt, like);
   content.append(actions);
   post.append(avatar, content);
@@ -354,8 +353,8 @@ function animateCount(post, addLikes, addRts = 0) {
   const timer = setInterval(() => {
     i++;
     const t = i / steps;
-    post._like.textContent = `${addLikes > 0 ? "♥" : "♡"} ${fmt(Math.round(fromL + addLikes * t))}`;
-    post._rt.textContent = `🔁 ${fmt(Math.round(fromR + addRts * t))}`;
+    setCount(post._like, Math.round(fromL + addLikes * t), addLikes > 0 ? "heartFill" : null);
+    setCount(post._rt, Math.round(fromR + addRts * t));
     if (i >= steps) {
       clearInterval(timer);
       post._likes = fromL + addLikes;
@@ -366,6 +365,17 @@ function animateCount(post, addLikes, addRts = 0) {
       post._like.classList.add("bump");
     }
   }, 60);
+}
+
+// アイコン＋数字のカウンター
+function counter(cls, icon, n) {
+  const s = el("span", cls);
+  s.append(iconEl(icon), el("span", "num", fmt(n)));
+  return s;
+}
+function setCount(c, n, icon = null) {
+  c.querySelector(".num").textContent = fmt(n);
+  if (icon) c.querySelector(".icon").innerHTML = ICONS[icon];
 }
 
 function scrollFeed() {
@@ -388,8 +398,11 @@ function showTyping(on) {
   }
 }
 
-function systemNote(text, cls = "") {
-  $("feed").append(el("div", `system-note ${cls}`, text));
+function systemNote(text, cls = "", icon = null) {
+  const n = el("div", `system-note ${cls}`);
+  if (icon) n.append(iconEl(icon));
+  n.append(document.createTextNode(text));
+  $("feed").append(n);
   scrollFeed();
 }
 
@@ -445,9 +458,9 @@ function playEffect(kind, delta) {
 
   if (kind === "critical" || kind === "win") burst(kind === "win" ? 120 : 70, ["#ffd23f", "#22e07a", "#1d9bf0", "#ff7bd5", "#fff"]);
   else if (kind === "nice") burst(40, ["#22e07a", "#7ee787", "#fff"]);
-  else if (kind === "foul") embers(26, "🔥");
-  else if (kind === "bad") { fx.append(el("div", "crack")); embers(8, "💢"); }
-  else if (kind === "lose") embers(20, "💀");
+  else if (kind === "foul") embers(26, "flame");
+  else if (kind === "bad") { fx.append(el("div", "crack")); embers(8, "anger"); }
+  else if (kind === "lose") embers(20, "skull");
 
   SFX[kind]?.();
   setTimeout(() => { if (fx.contains(stamp)) fx.innerHTML = ""; }, kind === "win" || kind === "lose" ? 2700 : 1600);
@@ -469,10 +482,10 @@ function burst(n, colors) {
   }
 }
 
-function embers(n, ch) {
+function embers(n, name) { // name: ICONS のキー
   const fx = $("fx");
   for (let i = 0; i < n; i++) {
-    const e = el("span", "ember", ch);
+    const e = iconEl(name, "ember");
     e.style.setProperty("--x", `${Math.random() * 100}%`);
     e.style.setProperty("--s", `${20 + Math.random() * 26}px`);
     e.style.setProperty("--d", `${1 + Math.random() * 1}s`);
@@ -535,14 +548,14 @@ async function startGame() {
     showTyping(false);
     state.thread.push({ who: "anti", text: comment });
     lastAntiPost = renderPost({ who: "anti", text: comment, likes: L.lv * 2 });
-    mainPost._reply.textContent = "💬 1";
+    setCount(mainPost._reply, 1);
     SFX.recv();
     setBusy(false);
     $("replyInput").focus();
   } catch (err) {
     if (stale(gid)) return;
     showTyping(false);
-    systemNote(`⚠️ ${err.message}`);
+    systemNote(err.message, "", "warning");
     const retry = el("button", "primary small", "もう一度試す");
     retry.style.margin = "0 auto 12px";
     retry.style.display = "block";
@@ -584,7 +597,7 @@ async function sendReply(e) {
     myPost.remove();
     $("replyInput").value = text;
     updateCharCount();
-    systemNote(`⚠️ ${err.message}`);
+    systemNote(err.message, "", "warning");
     updateGauge();
     setBusy(false);
     return;
@@ -602,7 +615,11 @@ async function sendReply(e) {
   myPost.classList.add(ev.kind);
   const v = el("div", `verdict ${ev.kind}`);
   v.append(el("span", "score", `${ev.score}点`), document.createTextNode(result.judge));
-  if (result.audience) v.append(el("span", "audience", `👀 ${result.audience}`));
+  if (result.audience) {
+    const a = el("span", "audience");
+    a.append(iconEl("eye"), document.createTextNode(result.audience));
+    v.append(a);
+  }
   myPost._content.append(v);
 
   playEffect(ev.kind, ev.delta);
@@ -663,7 +680,7 @@ async function finish(outcome, reason) {
       await wait(1400);
     }
     document.querySelectorAll(".post.anti").forEach((p) => p.classList.add("deleted"));
-    systemNote(`🚫 ${L.handle} さんはアカウントに鍵をかけて逃げました`, "win");
+    systemNote(`${L.handle} さんはアカウントに鍵をかけて逃げました`, "win", "lock");
     animateCount(mainPost, Math.round(200 * (1 + L.lv * 2)), Math.round(30 * L.lv));
   } else {
     if (state.lastLines.victory && reason !== "降参") {
@@ -674,7 +691,7 @@ async function finish(outcome, reason) {
       animateCount(lastAntiPost, Math.round(150 * (1 + L.lv)), Math.round(20 * L.lv));
       await wait(1200);
     }
-    systemNote("📸 あなたの返信がスクショされて拡散されています…", "lose");
+    systemNote("あなたの返信がスクショされて拡散されています…", "lose", "camera");
   }
   if (stale(gid)) return;
   playEffect(outcome);
@@ -705,7 +722,9 @@ function showResult(outcome, reason) {
   const best = $("bestReply");
   best.innerHTML = "";
   if (state.best) {
-    best.append(el("b", null, "🏆 ベストリプライ"), document.createTextNode(state.best.text));
+    const t = el("b");
+    t.append(iconEl("trophy"), document.createTextNode("ベストリプライ"));
+    best.append(t, document.createTextNode(state.best.text));
   }
   $("result").hidden = false;
   state.lastOutcome = outcome;
@@ -740,13 +759,14 @@ function selectLevel(lv) {
 }
 
 function init() {
+  document.querySelectorAll("[data-icon]").forEach((e) => { e.innerHTML = ICONS[e.dataset.icon]; });
   const levels = $("levels");
   for (const L of LEVELS) {
     const b = el("button", "level-btn");
     b.type = "button";
     b.dataset.lv = L.lv;
     b.style.setProperty("--lv-color", L.color);
-    b.append(el("b", null, L.avatar), el("span", null, `Lv${L.lv}`));
+    b.append(iconEl(L.avatar, "lv-avatar"), el("span", null, `Lv${L.lv}`));
     b.onclick = () => selectLevel(L.lv);
     levels.append(b);
   }
