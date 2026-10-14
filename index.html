@@ -90,8 +90,11 @@
         <span>効果音</span>
         <label class="switch"><input id="soundToggle" type="checkbox" checked /><span></span></label>
       </div>
-      <p id="settingsError" class="error" role="alert"></p>
-      <button id="settingsClose" class="primary" type="button">OK</button>
+      <p id="settingsStatus" class="status" role="status"></p>
+      <div class="settings-actions">
+        <button id="testKeyBtn" class="ghost" type="button">接続テスト</button>
+        <button id="settingsClose" class="primary" type="button">保存</button>
+      </div>
       <p class="hint center">キーはこの端末にだけ保存されます</p>
     </div>
   </div>

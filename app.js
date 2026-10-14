@@ -120,7 +120,14 @@ const SFX = {
 };
 
 /* ---------------- Gemini API ---------------- */
-class ApiError extends Error {}
+class ApiError extends Error {
+  constructor(message, settings = false) {
+    super(message);
+    this.settings = settings; // 設定(キー・モデル)を見直せば直るエラー
+  }
+}
+// ゲーム画面では、設定で直るエラーに歯車への案内を付ける
+const gameErrorText = (err) => (err.settings ? `${err.message} 右上の歯車から設定を確認してください。` : err.message);
 
 async function callGemini(system, prompt, schema, temperature = 1.0) {
   const key = $("apiKey").value.trim();
@@ -173,10 +180,10 @@ async function callGemini(system, prompt, schema, temperature = 1.0) {
 
     let msg = "";
     try { msg = (await res.json()).error?.message ?? ""; } catch { /* 本文なし */ }
-    if (res.status === 400 && /api key/i.test(msg)) throw new ApiError("APIキーが正しくありません。右上の歯車から確認してください。");
-    if (res.status === 403) throw new ApiError("APIキーに権限がありません。キーの制限設定を確認してください。");
-    if (res.status === 404) throw new ApiError(`モデル「${model}」が見つかりません。右上の歯車から別のモデルを選んでください。`);
-    if (res.status === 429) throw new ApiError("無料枠の回数制限に達しました。少し待つか、右上の歯車から別のモデルに切り替えてください。");
+    if (res.status === 400 && /api key/i.test(msg)) throw new ApiError("APIキーが正しくありません。", true);
+    if (res.status === 403) throw new ApiError("APIキーに権限がありません。キーの制限設定を確認してください。", true);
+    if (res.status === 404) throw new ApiError(`モデル「${model}」が見つかりません。別のモデルを選んでください。`, true);
+    if (res.status === 429) throw new ApiError("無料枠の回数制限に達しました。少し待つか、別のモデルに切り替えてください。", true);
     lastErr = new ApiError(`APIエラー (${res.status}) ${msg}`.trim());
     if (res.status < 500) break;
     await new Promise((r) => setTimeout(r, 1200));
@@ -551,7 +558,7 @@ async function startGame() {
   } catch (err) {
     if (stale(gid)) return;
     showTyping(false);
-    systemNote(err.message, "", "warning");
+    systemNote(gameErrorText(err), "", "warning");
     const retry = el("button", "primary small", "もう一度試す");
     retry.style.margin = "0 auto 12px";
     retry.style.display = "block";
@@ -593,7 +600,7 @@ async function sendReply(e) {
     myPost.remove();
     $("replyInput").value = text;
     updateCharCount();
-    systemNote(err.message, "", "warning");
+    systemNote(gameErrorText(err), "", "warning");
     updateGauge();
     setBusy(false);
     return;
@@ -748,16 +755,43 @@ function updateCharCount() {
 }
 
 /* ---------------- 設定モーダル ---------------- */
+function setStatus(text, kind = "") {
+  const st = $("settingsStatus");
+  st.textContent = text;
+  st.className = `status ${kind}`;
+}
+
 function openSettings(error = "") {
-  $("settingsError").textContent = error;
+  setStatus(error, error ? "ng" : "");
   $("settings").hidden = false;
   if (error) $("apiKey").focus();
 }
 
-function closeSettings() {
+function saveSettings() {
   store.set("apiKey", $("apiKey").value.trim());
   store.set("model", $("model").value.trim());
+}
+
+function closeSettings() {
+  saveSettings();
   $("settings").hidden = true;
+}
+
+// 保存して、実際にGeminiへ小さなリクエストを1回送って確認する
+async function testKey() {
+  if (!$("apiKey").value.trim()) { setStatus("APIキーを入れてください", "ng"); return; }
+  saveSettings();
+  const btn = $("testKeyBtn");
+  btn.disabled = true;
+  setStatus("確認中…", "pending");
+  try {
+    await callGemini("接続テストです。", "ok を true にして返してください。", S.obj({ ok: S.bool("常にtrue") }), 0);
+    setStatus(`保存しました。接続OK（${$("model").value.trim() || "gemini-flash-latest"}）`, "ok");
+  } catch (err) {
+    setStatus(err.message, "ng");
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 /* ---------------- 初期化 ---------------- */
@@ -794,6 +828,7 @@ function init() {
   $("startBtn").onclick = startGame;
   document.querySelectorAll(".settings-btn").forEach((b) => { b.onclick = () => openSettings(); });
   $("settingsClose").onclick = closeSettings;
+  $("testKeyBtn").onclick = testKey;
   $("settings").addEventListener("click", (e) => { if (e.target === $("settings")) closeSettings(); });
   $("composer").onsubmit = sendReply;
   $("replyInput").addEventListener("input", updateCharCount);
