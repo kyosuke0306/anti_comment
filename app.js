@@ -16,7 +16,7 @@ const LEVELS = [
   {
     lv: 1, label: "雑魚", color: "#7ee787",
     name: "ひまじん", handle: "@hima_jin_0721", avatar: "lv1",
-    maxTurns: 10, threshold: 30, gain: 0.6, loss: 0.3,
+    threshold: 30, gain: 0.6, loss: 0.3,
     desc: "かまってちゃん",
     persona: "語彙力が乏しく、根拠のない短い悪口しか言えないかまってちゃん。小学生のような煽り方(「草」「だっさ」「きも」など)。言い返されるとすぐに動揺し、論点がずれ、言い訳がましくなる。打たれ弱い。",
     judge: "とても甘めに採点する。筋が通っていて落ち着いた返しなら高得点(70〜95)を付けてよい。",
@@ -24,7 +24,7 @@ const LEVELS = [
   {
     lv: 2, label: "通りすがり", color: "#56d4dd",
     name: "通りすがりの者", handle: "@tooriska_ri", avatar: "lv2",
-    maxTurns: 10, threshold: 40, gain: 0.55, loss: 0.4,
+    threshold: 40, gain: 0.55, loss: 0.4,
     desc: "通りすがり",
     persona: "頼まれてもいないのに上から目線で余計な一言を言う通りすがり。「普通は〜」「〜するのが常識」といった浅い一般論で否定する。論理は浅く、具体的に反論されると話をそらすか捨て台詞で逃げがち。",
     judge: "やや甘めに採点する。相手の浅い一般論に具体的に反論できていれば高得点。",
@@ -32,7 +32,7 @@ const LEVELS = [
   {
     lv: 3, label: "正論マン", color: "#79c0ff",
     name: "正論bot（自称）", handle: "@seiron_ojisan", avatar: "lv3",
-    maxTurns: 10, threshold: 50, gain: 0.5, loss: 0.5,
+    threshold: 50, gain: 0.5, loss: 0.5,
     desc: "自称正論マン",
     persona: "自分は正論を言っていると信じ込んでいる理屈っぽいアカウント。「〜と思うのですが」「論理的に考えて」と丁寧語風に、それっぽい理屈で批判する。反論されると別の角度から再攻撃してくるが、明確に論理の穴を突かれると苦しくなる。",
     judge: "標準的に採点する。論理・的確さ・冷静さがそろって初めて70点以上。",
@@ -40,7 +40,7 @@ const LEVELS = [
   {
     lv: 4, label: "皮肉屋", color: "#d2a8ff",
     name: "冷笑系インフルエンサー", handle: "@reisho_kei", avatar: "lv4",
-    maxTurns: 10, threshold: 60, gain: 0.5, loss: 0.65,
+    threshold: 60, gain: 0.5, loss: 0.65,
     desc: "冷笑系インフルエンサー",
     persona: "フォロワーの多い冷笑系インフルエンサー。皮肉、嘲笑、マウント、揚げ足取りが得意で、相手の言葉の一部を切り取って茶化す。「必死で草」「効いてて草」のように相手を感情的に見せようとする。余裕ぶっているが、本質を突いた冷静な指摘には弱い。",
     judge: "厳しめに採点する。感情的な返し・言い訳・長すぎる説明は「効いてる」扱いで低得点。冷静で短く本質を突いた返しのみ高得点。",
@@ -48,7 +48,7 @@ const LEVELS = [
   {
     lv: 5, label: "論破王", color: "#ff7b72",
     name: "レスバ最強の論破王", handle: "@ronpa_king", avatar: "lv5",
-    maxTurns: 10, threshold: 70, gain: 0.5, loss: 0.85,
+    threshold: 70, gain: 0.5, loss: 0.85,
     desc: "最強の論破王",
     persona: "レスバで負けたことがない最強の論破王。常に冷静で余裕があり、絶対に感情的にならない。相手の発言の矛盾・曖昧さ・感情的な部分を一つ残らず拾って突く。論点のすり替え、揚げ足取り、ストローマン、「それってあなたの感想ですよね」「データあります？」のような詭弁も巧みに使う。少し追い詰められても話題を変えて巻き返そうとし、簡単には負けを認めない。相手の返信の最も弱い部分に的確にカウンターする。",
     judge: "非常に厳しく採点する。少しでも感情的・曖昧・論点ずれ・相手の詭弁に乗せられている・言い訳がましい返しは低得点(10〜50)。相手の詭弁そのものを見抜いて指摘し、かつ第三者が見て明らかに一本取ったと思える、簡潔で隙のない返しにだけ80点以上を付ける。90点以上は滅多に出さない。",
@@ -69,6 +69,7 @@ const state = {
   userName: "あなた",
   post: "",
   thread: [], // { who: "anti" | "me", text, score? }
+  rallies: [], // 自分の返信ごとの { score, kind }
   gauge: START_GAUGE,
   turn: 0,
   combo: 0,
@@ -288,7 +289,7 @@ async function fetchJudgeAndReply(reply) {
     "プレイヤーの最新の返信：",
     `「${reply}」`,
     "",
-    `現在の形勢：${gaugeDesc}（${state.turn}/${L.maxTurns}ターン目）`,
+    `現在の形勢：${gaugeDesc}（${state.turn}ラリー目）`,
     "",
     "1. 審判として最新の返信を採点してください。",
     `2. アンチ「${L.name}」として、最新の返信に反撃するリプライを書いてください。高得点の返信を受けた後は、アンチは動揺・苦し紛れ・論点ずらしの度合いを強めること。低得点の返信を受けた後は、アンチは調子に乗って畳みかけること。`,
@@ -452,7 +453,6 @@ function updateGauge() {
   $("gaugeFill").style.width = `${g}%`;
   $("gaugeFill").style.backgroundPosition = `${100 - g}% 0`;
   $("gaugeKnob").style.left = `${g}%`;
-  $("turnInfo").textContent = `${state.turn}/${state.level.maxTurns}ターン`;
   const c = $("combo");
   c.textContent = state.combo >= 2 ? `${state.combo} COMBO!` : "";
   if (state.combo >= 2) { c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop"); }
@@ -544,7 +544,7 @@ const stale = (id) => id !== gameId;
 
 function resetState() {
   Object.assign(state, {
-    thread: [], gauge: START_GAUGE, turn: 0, combo: 0, maxCombo: 0, niceCount: 0,
+    thread: [], rallies: [], gauge: START_GAUGE, turn: 0, combo: 0, maxCombo: 0, niceCount: 0,
     best: null, busy: false, over: false, lastLines: { retreat: "", victory: "" },
   });
 }
@@ -644,6 +644,7 @@ async function sendReply(e) {
 
   const ev = evaluate(result);
   state.thread[state.thread.length - 1].score = ev.score;
+  state.rallies.push({ score: ev.score, kind: ev.kind });
   if (!state.best || ev.score > state.best.score) state.best = { text, score: ev.score };
   state.gauge = clamp(state.gauge + ev.delta, 0, 100);
   state.lastLines = { retreat: result.retreat, victory: result.victory };
@@ -680,11 +681,6 @@ async function sendReply(e) {
   // 勝敗チェック
   if (state.gauge >= 100) return finish("win", "論破ゲージMAX！");
   if (state.gauge <= 0) return finish("lose", "論破ゲージが尽きた…");
-  if (state.turn >= L.maxTurns) {
-    return state.gauge > START_GAUGE
-      ? finish("win", "規定ターン終了：判定勝ち")
-      : finish("lose", "規定ターン終了：判定負け");
-  }
 
   // 相手の反撃
   await wait(1100);
@@ -737,34 +733,77 @@ async function finish(outcome, reason) {
   showResult(outcome, reason);
 }
 
+// 総合ランク：平均点(レベルの合格ラインとの差)＋勝敗＋相手レベルで決める
+function calcRank(outcome) {
+  const L = state.level;
+  const r = state.rallies;
+  const avg = r.length ? r.reduce((a, x) => a + x.score, 0) / r.length : 0;
+  let pts = 50 + (avg - L.threshold) + (outcome === "win" ? 25 : -10) + (L.lv - 3) * 6;
+  if (r.some((x) => x.kind === "foul")) pts -= 15;
+  if (outcome === "lose") pts = Math.min(pts, 64); // 負けたら最高でもB
+  return pts >= 90 ? "S" : pts >= 78 ? "A" : pts >= 65 ? "B" : pts >= 50 ? "C" : "D";
+}
+
+function countUp(node, to, delay = 0) {
+  node.textContent = "0";
+  if (!to) return;
+  const steps = 20;
+  setTimeout(() => {
+    let i = 0;
+    const t = setInterval(() => {
+      i++;
+      node.textContent = String(Math.round((to * i) / steps));
+      if (i >= steps) clearInterval(t);
+    }, 30);
+  }, delay);
+}
+
 function showResult(outcome, reason) {
   const L = state.level;
-  const t = $("resultTitle");
-  t.className = `result-title ${outcome}`;
-  t.textContent = outcome === "win" ? "論破成功!!" : "論破された…";
-  $("resultSub").textContent = `Lv${L.lv}「${L.name}」 ─ ${reason}`;
-  const stats = $("resultStats");
-  stats.innerHTML = "";
-  const rows = [
-    ["ターン数", `${state.turn}`],
-    ["NICE REPLY", `${state.niceCount}回`],
-    ["最大コンボ", `${state.maxCombo}`],
-    ["最高スコア", state.best ? `${state.best.score}点` : "-"],
-  ];
-  for (const [k, v] of rows) {
-    const d = el("div");
-    d.append(el("dt", null, k), el("dd", null, v));
-    stats.append(d);
-  }
+  const win = outcome === "win";
+  $("resultCard").className = `modal-body result-card ${outcome}`;
+  $("resultLabel").textContent = win ? "VICTORY" : "DEFEAT";
+  $("resultTitle").textContent = win ? "論破!!" : "論破された…";
+  $("resultSub").textContent = `Lv${L.lv} ${L.name}${reason === "降参" ? "（降参）" : ""}`;
+
+  $("resultMe").innerHTML = ICONS.me;
+  $("resultFoe").innerHTML = ICONS[L.avatar];
+  $("resultMe").classList.toggle("loser", !win);
+  $("resultFoe").classList.toggle("loser", win);
+
+  const rank = calcRank(outcome);
+  $("rankLetter").textContent = rank;
+  $("rank").className = `rank rank-${rank}`;
+
+  countUp($("statRally"), state.rallies.length, 300);
+  countUp($("statNice"), state.niceCount, 450);
+  countUp($("statBest"), state.best?.score ?? 0, 600);
+
+  // ラリーごとの点数グラフ（合格ラインの線つき）
+  const chart = $("rallyChart");
+  chart.innerHTML = "";
+  chart.style.setProperty("--pass", String(L.threshold));
+  chart.hidden = state.rallies.length === 0;
+  state.rallies.forEach((r, i) => {
+    const bar = el("span", `bar ${r.kind}`);
+    bar.style.setProperty("--h", `${Math.max(r.score, 4)}%`);
+    bar.style.animationDelay = `${0.5 + i * 0.08}s`;
+    bar.title = `${i + 1}: ${r.score}点`;
+    chart.append(bar);
+  });
+
+  // ベストリプライを投稿風に
   const best = $("bestReply");
   best.innerHTML = "";
   if (state.best) {
-    const t = el("b");
-    t.append(iconEl("trophy"), document.createTextNode("ベストリプライ"));
-    best.append(t, document.createTextNode(state.best.text));
+    const head = el("div", "best-head");
+    head.append(iconEl("trophy"), el("span", null, "ベストリプライ"), el("span", "best-score", `${state.best.score}点`));
+    best.append(head, el("p", "best-text", state.best.text));
   }
+
   $("result").hidden = false;
   state.lastOutcome = outcome;
+  state.lastRank = rank;
 }
 
 function giveUp() {
@@ -776,8 +815,8 @@ function giveUp() {
 function shareResult() {
   const L = state.level;
   const text = state.lastOutcome === "win"
-    ? `Anti Comment BusterでLv${L.lv}「${L.name}」を論破した！（最高${state.best?.score ?? 0}点）`
-    : `Anti Comment BusterでLv${L.lv}「${L.name}」に言い負かされた…`;
+    ? `Lv${L.lv}「${L.name}」を${state.rallies.length}ラリーで論破！ ランク${state.lastRank}`
+    : `Lv${L.lv}「${L.name}」に${state.rallies.length}ラリーで言い負かされた… ランク${state.lastRank}`;
   const url = location.href.split("#")[0];
   window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${encodeURIComponent("AntiCommentBuster")}`, "_blank", "noopener");
 }

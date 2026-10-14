@@ -13,7 +13,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="AC Buster" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-  <link rel="stylesheet" href="style.css?v=20261014d" />
+  <link rel="stylesheet" href="style.css?v=20261014e" />
 </head>
 <body>
   <div id="app">
@@ -41,7 +41,7 @@
       <header class="topbar">
         <button id="backBtn" class="icon-btn" type="button" aria-label="戻る" data-icon="back"></button>
         <div class="brand">Chirpy</div>
-        <div class="meta"><span id="levelBadge" class="badge"></span><span id="turnInfo" class="turn"></span></div>
+        <div class="meta"><span id="levelBadge" class="badge"></span></div>
         <button class="icon-btn settings-btn" type="button" aria-label="設定" data-icon="gear"></button>
       </header>
 
@@ -108,20 +108,36 @@
 
   <!-- 結果モーダル -->
   <div id="result" class="modal" hidden>
-    <div class="modal-body">
-      <div id="resultTitle" class="result-title"></div>
-      <p id="resultSub" class="result-sub"></p>
-      <dl id="resultStats" class="stats"></dl>
+    <div id="resultCard" class="modal-body result-card">
+      <div class="result-hero">
+        <div id="resultLabel" class="result-label"></div>
+        <div id="resultTitle" class="result-title"></div>
+        <div class="versus">
+          <div id="resultMe" class="vs-avatar"></div>
+          <span class="vs-text">VS</span>
+          <div id="resultFoe" class="vs-avatar"></div>
+        </div>
+        <p id="resultSub" class="result-sub"></p>
+      </div>
+      <div class="rank-row">
+        <div id="rank" class="rank"><small>RANK</small><b id="rankLetter"></b></div>
+        <div class="stats">
+          <div><b id="statRally">0</b><small>ラリー</small></div>
+          <div><b id="statNice">0</b><small>NICE</small></div>
+          <div><b id="statBest">0</b><small>最高点</small></div>
+        </div>
+      </div>
+      <div id="rallyChart" class="rally-chart" aria-label="ラリーごとの点数"></div>
       <div id="bestReply" class="best-reply"></div>
-      <div class="modal-actions">
+      <div class="result-actions">
         <button id="retryBtn" class="primary" type="button">もう一度</button>
-        <button id="shareBtn" class="ghost" type="button">結果をポスト</button>
-        <button id="toSetupBtn" class="ghost" type="button">トップに戻る</button>
+        <button id="shareBtn" class="icon-round" type="button" aria-label="結果をポスト" data-icon="share"></button>
+        <button id="toSetupBtn" class="icon-round" type="button" aria-label="トップに戻る" data-icon="home"></button>
       </div>
     </div>
   </div>
 
-  <script src="icons.js?v=20261014d"></script>
-  <script src="app.js?v=20261014d"></script>
+  <script src="icons.js?v=20261014e"></script>
+  <script src="app.js?v=20261014e"></script>
 </body>
 </html>
