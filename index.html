@@ -3,69 +3,30 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>言い返しシミュレーター</title>
+  <title>Anti Comment Buster</title>
   <meta name="description" content="アンチコメントに言い返す欲求を叶える、レスバ・シミュレーションゲーム" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%231d9bf0' d='M32 6c15 0 26 9.6 26 22S47 50 32 50c-3 0-5.8-.4-8.4-1.1L12 56l2.6-10.4C9.3 41.7 6 35.2 6 28 6 15.6 17 6 32 6z'/%3E%3Cpath fill='%23ffd23f' d='M35 13L22 31h9l-4 15 14-19h-9z'/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="app">
-    <!-- ===== 設定画面 ===== -->
+    <!-- ===== スタート画面 ===== -->
     <section id="setup" class="screen active">
+      <div class="setup-top">
+        <button class="icon-btn settings-btn" type="button" aria-label="設定" data-icon="gear"></button>
+      </div>
       <header class="setup-hero">
         <div class="logo" data-icon="logo"></div>
-        <h1>言い返し<br /><span>シミュレーター</span></h1>
-        <p class="tagline">現実では言い返せないアンチコメントに、ここで思いっきり言い返そう。</p>
+        <h1>Anti Comment<br /><span>Buster</span></h1>
       </header>
 
       <div class="card">
-        <h2>① Gemini APIキー</h2>
-        <p class="hint">
-          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>
-          で無料のAPIキーを発行して貼り付けてください。キーはこのブラウザ内(localStorage)にだけ保存され、Google以外には送信されません。
-        </p>
-        <div class="row">
-          <input id="apiKey" type="password" placeholder="AIza..." autocomplete="off" spellcheck="false" />
-          <button id="toggleKey" class="ghost small" type="button">表示</button>
-        </div>
-        <details class="advanced">
-          <summary>モデル設定（エラー時に変更）</summary>
-          <label class="field">
-            <span>モデル名</span>
-            <input id="model" list="modelList" value="gemini-flash-latest" spellcheck="false" />
-            <datalist id="modelList">
-              <option value="gemini-flash-latest"></option>
-              <option value="gemini-flash-lite-latest"></option>
-              <option value="gemini-2.5-flash"></option>
-              <option value="gemini-2.5-flash-lite"></option>
-            </datalist>
-          </label>
-          <p class="hint">無料枠の回数制限(429エラー)に当たったら、別のモデルに切り替えると続けられることがあります。</p>
-        </details>
-      </div>
-
-      <div class="card">
-        <h2>② 相手のレベル</h2>
+        <h2>相手</h2>
         <div id="levels" class="levels"></div>
         <p id="levelDesc" class="level-desc"></p>
       </div>
 
-      <div class="card">
-        <h2>③ あなたの投稿</h2>
-        <label class="field">
-          <span>表示名</span>
-          <input id="userName" maxlength="20" value="あなた" />
-        </label>
-        <div id="presets" class="presets"></div>
-        <textarea id="postText" rows="3" maxlength="200" placeholder="SNSに投稿する内容を書いてください"></textarea>
-      </div>
-
-      <button id="startBtn" class="primary big" type="button">投稿してスタート</button>
-      <p id="setupError" class="error" role="alert"></p>
-
-      <footer class="foot">
-        効果音 <label class="switch"><input id="soundToggle" type="checkbox" checked /><span></span></label>
-      </footer>
+      <button id="startBtn" class="primary big" type="button">スタート</button>
     </section>
 
     <!-- ===== ゲーム画面 ===== -->
@@ -74,6 +35,7 @@
         <button id="backBtn" class="icon-btn" type="button" aria-label="戻る" data-icon="back"></button>
         <div class="brand">Chirpy</div>
         <div class="meta"><span id="levelBadge" class="badge"></span><span id="turnInfo" class="turn"></span></div>
+        <button class="icon-btn settings-btn" type="button" aria-label="設定" data-icon="gear"></button>
       </header>
 
       <div class="gauge-wrap">
@@ -103,6 +65,37 @@
   <div id="flash" class="flash"></div>
   <div id="fx" class="fx" aria-live="polite"></div>
 
+  <!-- 設定モーダル -->
+  <div id="settings" class="modal" hidden>
+    <div class="modal-body settings-body">
+      <h2>設定</h2>
+      <label class="field">
+        <span>Gemini APIキー <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">無料で取得</a></span>
+        <div class="row">
+          <input id="apiKey" type="password" placeholder="AIza..." autocomplete="off" spellcheck="false" />
+          <button id="toggleKey" class="ghost small" type="button">表示</button>
+        </div>
+      </label>
+      <label class="field">
+        <span>モデル</span>
+        <input id="model" list="modelList" value="gemini-flash-latest" spellcheck="false" />
+        <datalist id="modelList">
+          <option value="gemini-flash-latest"></option>
+          <option value="gemini-flash-lite-latest"></option>
+          <option value="gemini-2.5-flash"></option>
+          <option value="gemini-2.5-flash-lite"></option>
+        </datalist>
+      </label>
+      <div class="field inline">
+        <span>効果音</span>
+        <label class="switch"><input id="soundToggle" type="checkbox" checked /><span></span></label>
+      </div>
+      <p id="settingsError" class="error" role="alert"></p>
+      <button id="settingsClose" class="primary" type="button">OK</button>
+      <p class="hint center">キーはこの端末にだけ保存されます</p>
+    </div>
+  </div>
+
   <!-- 結果モーダル -->
   <div id="result" class="modal" hidden>
     <div class="modal-body">
@@ -111,9 +104,9 @@
       <dl id="resultStats" class="stats"></dl>
       <div id="bestReply" class="best-reply"></div>
       <div class="modal-actions">
-        <button id="retryBtn" class="primary" type="button">同じ設定でもう一度</button>
+        <button id="retryBtn" class="primary" type="button">もう一度</button>
         <button id="shareBtn" class="ghost" type="button">結果をポスト</button>
-        <button id="toSetupBtn" class="ghost" type="button">設定に戻る</button>
+        <button id="toSetupBtn" class="ghost" type="button">トップに戻る</button>
       </div>
     </div>
   </div>

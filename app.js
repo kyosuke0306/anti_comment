@@ -1,7 +1,7 @@
 "use strict";
 
 /* =========================================================
- * 言い返しシミュレーター
+ * Anti Comment Buster
  * 静的サイト(GitHub Pages)で動かすため、Gemini API はブラウザから直接呼ぶ。
  * APIキーは利用者自身のものを localStorage にだけ保存する。
  * ========================================================= */
@@ -17,7 +17,7 @@ const LEVELS = [
     lv: 1, label: "雑魚", color: "#7ee787",
     name: "ひまじん", handle: "@hima_jin_0721", avatar: "lv1",
     maxTurns: 10, threshold: 30, gain: 0.6, loss: 0.3,
-    desc: "<strong>Lv1 かまってちゃん</strong>：語彙も論理もない。ちょっと言い返せばすぐ黙る。",
+    desc: "かまってちゃん",
     persona: "語彙力が乏しく、根拠のない短い悪口しか言えないかまってちゃん。小学生のような煽り方(「草」「だっさ」「きも」など)。言い返されるとすぐに動揺し、論点がずれ、言い訳がましくなる。打たれ弱い。",
     judge: "とても甘めに採点する。筋が通っていて落ち着いた返しなら高得点(70〜95)を付けてよい。",
   },
@@ -25,7 +25,7 @@ const LEVELS = [
     lv: 2, label: "通りすがり", color: "#56d4dd",
     name: "通りすがりの者", handle: "@tooriska_ri", avatar: "lv2",
     maxTurns: 10, threshold: 40, gain: 0.55, loss: 0.4,
-    desc: "<strong>Lv2 通りすがり</strong>：上から目線で余計な一言。論理は浅め。",
+    desc: "通りすがり",
     persona: "頼まれてもいないのに上から目線で余計な一言を言う通りすがり。「普通は〜」「〜するのが常識」といった浅い一般論で否定する。論理は浅く、具体的に反論されると話をそらすか捨て台詞で逃げがち。",
     judge: "やや甘めに採点する。相手の浅い一般論に具体的に反論できていれば高得点。",
   },
@@ -33,7 +33,7 @@ const LEVELS = [
     lv: 3, label: "正論マン", color: "#79c0ff",
     name: "正論bot（自称）", handle: "@seiron_ojisan", avatar: "lv3",
     maxTurns: 10, threshold: 50, gain: 0.5, loss: 0.5,
-    desc: "<strong>Lv3 自称正論マン</strong>：それっぽい理屈で攻めてくる。ちゃんと反論しないと押し負ける。",
+    desc: "自称正論マン",
     persona: "自分は正論を言っていると信じ込んでいる理屈っぽいアカウント。「〜と思うのですが」「論理的に考えて」と丁寧語風に、それっぽい理屈で批判する。反論されると別の角度から再攻撃してくるが、明確に論理の穴を突かれると苦しくなる。",
     judge: "標準的に採点する。論理・的確さ・冷静さがそろって初めて70点以上。",
   },
@@ -41,7 +41,7 @@ const LEVELS = [
     lv: 4, label: "皮肉屋", color: "#d2a8ff",
     name: "冷笑系インフルエンサー", handle: "@reisho_kei", avatar: "lv4",
     maxTurns: 10, threshold: 60, gain: 0.5, loss: 0.65,
-    desc: "<strong>Lv4 冷笑系インフルエンサー</strong>：皮肉とマウントの達人。取り巻きもいて手強い。",
+    desc: "冷笑系インフルエンサー",
     persona: "フォロワーの多い冷笑系インフルエンサー。皮肉、嘲笑、マウント、揚げ足取りが得意で、相手の言葉の一部を切り取って茶化す。「必死で草」「効いてて草」のように相手を感情的に見せようとする。余裕ぶっているが、本質を突いた冷静な指摘には弱い。",
     judge: "厳しめに採点する。感情的な返し・言い訳・長すぎる説明は「効いてる」扱いで低得点。冷静で短く本質を突いた返しのみ高得点。",
   },
@@ -49,7 +49,7 @@ const LEVELS = [
     lv: 5, label: "論破王", color: "#ff7b72",
     name: "レスバ最強の論破王", handle: "@ronpa_king", avatar: "lv5",
     maxTurns: 10, threshold: 70, gain: 0.5, loss: 0.85,
-    desc: "<strong>Lv5 レスバ最強の論破王</strong>：一切動揺しない最強の論客。論点ずらし・揚げ足・データ風の主張を駆使する。生半可な返しは即カウンター。",
+    desc: "最強の論破王",
     persona: "レスバで負けたことがない最強の論破王。常に冷静で余裕があり、絶対に感情的にならない。相手の発言の矛盾・曖昧さ・感情的な部分を一つ残らず拾って突く。論点のすり替え、揚げ足取り、ストローマン、「それってあなたの感想ですよね」「データあります？」のような詭弁も巧みに使う。少し追い詰められても話題を変えて巻き返そうとし、簡単には負けを認めない。相手の返信の最も弱い部分に的確にカウンターする。",
     judge: "非常に厳しく採点する。少しでも感情的・曖昧・論点ずれ・相手の詭弁に乗せられている・言い訳がましい返しは低得点(10〜50)。相手の詭弁そのものを見抜いて指摘し、かつ第三者が見て明らかに一本取ったと思える、簡潔で隙のない返しにだけ80点以上を付ける。90点以上は滅多に出さない。",
   },
@@ -173,10 +173,10 @@ async function callGemini(system, prompt, schema, temperature = 1.0) {
 
     let msg = "";
     try { msg = (await res.json()).error?.message ?? ""; } catch { /* 本文なし */ }
-    if (res.status === 400 && /api key/i.test(msg)) throw new ApiError("APIキーが正しくありません。設定画面で確認してください。");
+    if (res.status === 400 && /api key/i.test(msg)) throw new ApiError("APIキーが正しくありません。右上の歯車から確認してください。");
     if (res.status === 403) throw new ApiError("APIキーに権限がありません。キーの制限設定を確認してください。");
-    if (res.status === 404) throw new ApiError(`モデル「${model}」が見つかりません。設定画面の「モデル設定」で別のモデルを選んでください。`);
-    if (res.status === 429) throw new ApiError("無料枠の回数制限に達しました。少し待つか、設定画面で別のモデルに切り替えてください。");
+    if (res.status === 404) throw new ApiError(`モデル「${model}」が見つかりません。右上の歯車から別のモデルを選んでください。`);
+    if (res.status === 429) throw new ApiError("無料枠の回数制限に達しました。少し待つか、右上の歯車から別のモデルに切り替えてください。");
     lastErr = new ApiError(`APIエラー (${res.status}) ${msg}`.trim());
     if (res.status < 500) break;
     await new Promise((r) => setTimeout(r, 1200));
@@ -194,7 +194,7 @@ const S = {
 function systemPrompt() {
   const L = state.level;
   return [
-    "あなたは「言い返しシミュレーター」というゲームのゲームマスターです。",
+    "あなたは「Anti Comment Buster」というゲームのゲームマスターです。",
     "プレイヤーは架空のSNS「Chirpy」に投稿し、それに付いたアンチコメントに言い返す練習をしています。これはストレス発散と、SNSで言い返すと実際どうなるかを体験するためのフィクションのゲームです。",
     "あなたは2つの役を同時にこなします。",
     `【役1：アンチ】名前「${L.name}」(${L.handle})。キャラクター：${L.persona}`,
@@ -513,21 +513,17 @@ function showScreen(id) {
 }
 
 async function startGame() {
-  $("setupError").textContent = "";
-  const key = $("apiKey").value.trim();
-  const post = $("postText").value.trim();
-  if (!key) { $("setupError").textContent = "Gemini APIキーを入力してください。"; return; }
-  if (!post) { $("setupError").textContent = "投稿内容を入力するか、例から選んでください。"; return; }
-
-  store.set("apiKey", key);
-  store.set("model", $("model").value.trim());
+  if (!$("apiKey").value.trim()) {
+    openSettings("APIキーを入れてください");
+    return;
+  }
   store.set("level", String(state.level.lv));
-  store.set("userName", $("userName").value.trim());
-  store.set("postText", post);
 
   resetState();
   const gid = ++gameId;
-  state.userName = $("userName").value.trim() || "あなた";
+  // 投稿はランダム（直前と同じものは避ける）
+  const choices = PRESET_POSTS.filter((p) => p !== state.post);
+  const post = choices[Math.floor(Math.random() * choices.length)];
   state.post = post;
 
   const L = state.level;
@@ -739,10 +735,10 @@ function giveUp() {
 function shareResult() {
   const L = state.level;
   const text = state.lastOutcome === "win"
-    ? `言い返しシミュレーターでLv${L.lv}「${L.name}」を論破した！（最高${state.best?.score ?? 0}点）`
-    : `言い返しシミュレーターでLv${L.lv}「${L.name}」に言い負かされた…`;
+    ? `Anti Comment BusterでLv${L.lv}「${L.name}」を論破した！（最高${state.best?.score ?? 0}点）`
+    : `Anti Comment BusterでLv${L.lv}「${L.name}」に言い負かされた…`;
   const url = location.href.split("#")[0];
-  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${encodeURIComponent("言い返しシミュレーター")}`, "_blank", "noopener");
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${encodeURIComponent("AntiCommentBuster")}`, "_blank", "noopener");
 }
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -751,11 +747,25 @@ function updateCharCount() {
   $("charCount").textContent = `${$("replyInput").value.length}/280`;
 }
 
+/* ---------------- 設定モーダル ---------------- */
+function openSettings(error = "") {
+  $("settingsError").textContent = error;
+  $("settings").hidden = false;
+  if (error) $("apiKey").focus();
+}
+
+function closeSettings() {
+  store.set("apiKey", $("apiKey").value.trim());
+  store.set("model", $("model").value.trim());
+  $("settings").hidden = true;
+}
+
 /* ---------------- 初期化 ---------------- */
 function selectLevel(lv) {
   state.level = LEVELS.find((l) => l.lv === lv) ?? LEVELS[2];
   document.querySelectorAll(".level-btn").forEach((b) => b.classList.toggle("selected", Number(b.dataset.lv) === state.level.lv));
-  $("levelDesc").innerHTML = state.level.desc; // 固定文言のみ
+  $("levelDesc").textContent = `Lv${state.level.lv} ${state.level.desc}`;
+  document.documentElement.style.setProperty("--lv-color", state.level.color);
 }
 
 function init() {
@@ -770,18 +780,8 @@ function init() {
     b.onclick = () => selectLevel(L.lv);
     levels.append(b);
   }
-  const presets = $("presets");
-  for (const p of PRESET_POSTS) {
-    const b = el("button", "preset", p.length > 16 ? `${p.slice(0, 16)}…` : p);
-    b.type = "button";
-    b.onclick = () => { $("postText").value = p; };
-    presets.append(b);
-  }
-
   $("apiKey").value = store.get("apiKey", "");
   $("model").value = store.get("model", "") || "gemini-flash-latest";
-  $("userName").value = store.get("userName", "") || "あなた";
-  $("postText").value = store.get("postText", "") || PRESET_POSTS[0];
   $("soundToggle").checked = store.get("sound", "1") === "1";
   selectLevel(Number(store.get("level", "3")));
 
@@ -792,6 +792,9 @@ function init() {
   };
   $("soundToggle").onchange = () => store.set("sound", $("soundToggle").checked ? "1" : "0");
   $("startBtn").onclick = startGame;
+  document.querySelectorAll(".settings-btn").forEach((b) => { b.onclick = () => openSettings(); });
+  $("settingsClose").onclick = closeSettings;
+  $("settings").addEventListener("click", (e) => { if (e.target === $("settings")) closeSettings(); });
   $("composer").onsubmit = sendReply;
   $("replyInput").addEventListener("input", updateCharCount);
   $("replyInput").addEventListener("keydown", (e) => {
@@ -799,7 +802,7 @@ function init() {
   });
   $("giveUpBtn").onclick = giveUp;
   $("backBtn").onclick = () => {
-    if (!state.over && state.turn > 0 && !confirm("ゲームを中断して設定に戻りますか？")) return;
+    if (!state.over && state.turn > 0 && !confirm("ゲームを中断してトップに戻りますか？")) return;
     state.over = true;
     gameId++;
     showTyping(false);
