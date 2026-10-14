@@ -129,9 +129,28 @@ class ApiError extends Error {
 // ゲーム画面では、設定で直るエラーに歯車への案内を付ける
 const gameErrorText = (err) => (err.settings ? `${err.message} 右上の歯車から設定を確認してください。` : err.message);
 
+// モデル欄が空(自動)のときに順番に試すモデル。
+// 無料枠はモデルごとに別なので、1つが上限(429)でも次のモデルで続けられることが多い。
+const AUTO_MODELS = [
+  "gemini-2.5-flash-lite",
+  "gemini-flash-lite-latest",
+  "gemini-2.5-flash",
+  "gemini-flash-latest",
+];
+// このセッション中に上限・存在しないと分かったモデル（無駄なリクエストを送らない）
+const deadModels = new Set();
+
+function modelCandidates() {
+  const chosen = $("model").value.trim().replace(/^models\//, "");
+  if (chosen) return [chosen];
+  const good = store.get("goodModel", "");
+  const list = good && AUTO_MODELS.includes(good) ? [good, ...AUTO_MODELS.filter((m) => m !== good)] : AUTO_MODELS;
+  const alive = list.filter((m) => !deadModels.has(m));
+  return alive.length ? alive : list; // 全滅していたら時間経過で回復した可能性に賭けてもう一度
+}
+
 async function callGemini(system, prompt, schema, temperature = 1.0) {
   const key = $("apiKey").value.trim();
-  const model = ($("model").value.trim() || "gemini-flash-latest").replace(/^models\//, "");
   const body = {
     systemInstruction: { parts: [{ text: system }] },
     contents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -145,48 +164,63 @@ async function callGemini(system, prompt, schema, temperature = 1.0) {
     ].map((category) => ({ category, threshold: "BLOCK_ONLY_HIGH" })),
   };
 
+  const auto = !$("model").value.trim();
   let lastErr;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    let res;
-    try {
-      res = await fetch(`${API_BASE}${encodeURIComponent(model)}:generateContent`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-        body: JSON.stringify(body),
-      });
-    } catch {
-      lastErr = new ApiError("通信に失敗しました。ネット接続を確認してください。");
-      continue;
-    }
-    if (res.ok) {
-      const data = await res.json();
-      if (data.promptFeedback?.blockReason) {
-        throw new ApiError("内容がGeminiの安全フィルタでブロックされました。表現を変えてみてください。");
-      }
-      const cand = data.candidates?.[0];
-      const text = (cand?.content?.parts ?? []).filter((p) => !p.thought).map((p) => p.text ?? "").join("");
-      if (!text) {
-        throw new ApiError(cand?.finishReason === "SAFETY"
-          ? "内容がGeminiの安全フィルタでブロックされました。表現を変えてみてください。"
-          : "AIから空の応答が返りました。もう一度送信してください。");
-      }
+  for (const model of modelCandidates()) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      let res;
       try {
-        return JSON.parse(text);
+        res = await fetch(`${API_BASE}${encodeURIComponent(model)}:generateContent`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+          body: JSON.stringify(body),
+        });
       } catch {
-        lastErr = new ApiError("AIの応答を読み取れませんでした。もう一度送信してください。");
+        lastErr = new ApiError("通信に失敗しました。ネット接続を確認してください。");
         continue;
       }
-    }
+      if (res.ok) {
+        const data = await res.json();
+        if (data.promptFeedback?.blockReason) {
+          throw new ApiError("内容がGeminiの安全フィルタでブロックされました。表現を変えてみてください。");
+        }
+        const cand = data.candidates?.[0];
+        const text = (cand?.content?.parts ?? []).filter((p) => !p.thought).map((p) => p.text ?? "").join("");
+        if (!text) {
+          throw new ApiError(cand?.finishReason === "SAFETY"
+            ? "内容がGeminiの安全フィルタでブロックされました。表現を変えてみてください。"
+            : "AIから空の応答が返りました。もう一度送信してください。");
+        }
+        try {
+          const json = JSON.parse(text);
+          state.usedModel = model;
+          if (auto) store.set("goodModel", model);
+          return json;
+        } catch {
+          lastErr = new ApiError("AIの応答を読み取れませんでした。もう一度送信してください。");
+          continue;
+        }
+      }
 
-    let msg = "";
-    try { msg = (await res.json()).error?.message ?? ""; } catch { /* 本文なし */ }
-    if (res.status === 400 && /api key/i.test(msg)) throw new ApiError("APIキーが正しくありません。", true);
-    if (res.status === 403) throw new ApiError("APIキーに権限がありません。キーの制限設定を確認してください。", true);
-    if (res.status === 404) throw new ApiError(`モデル「${model}」が見つかりません。別のモデルを選んでください。`, true);
-    if (res.status === 429) throw new ApiError("無料枠の回数制限に達しました。少し待つか、別のモデルに切り替えてください。", true);
-    lastErr = new ApiError(`APIエラー (${res.status}) ${msg}`.trim());
-    if (res.status < 500) break;
-    await new Promise((r) => setTimeout(r, 1200));
+      let msg = "";
+      try { msg = (await res.json()).error?.message ?? ""; } catch { /* 本文なし */ }
+      if (res.status === 400 && /api key/i.test(msg)) throw new ApiError("APIキーが正しくありません。", true);
+      if (res.status === 403) throw new ApiError("APIキーに権限がありません。キーの制限設定を確認してください。", true);
+      if (res.status === 404 || res.status === 429) {
+        // このモデルは使えない → 次のモデルへ
+        deadModels.add(model);
+        lastErr = res.status === 404
+          ? new ApiError(`モデル「${model}」が見つかりません。`, true)
+          : new ApiError(`無料枠の上限です（${model}）。少し時間をおいてください。\n${msg.split("\n")[0].slice(0, 160)}`, true);
+        break;
+      }
+      lastErr = new ApiError(`APIエラー (${res.status}) ${msg}`.trim());
+      if (res.status < 500) throw lastErr;
+      await new Promise((r) => setTimeout(r, 1200));
+    }
+  }
+  if (auto && lastErr?.settings) {
+    lastErr = new ApiError(`すべてのモデルが無料枠の上限でした。時間をおくか、別のGoogleアカウントのキーを試してください。\n${lastErr.message}`, true);
   }
   throw lastErr;
 }
@@ -786,7 +820,7 @@ async function testKey() {
   setStatus("確認中…", "pending");
   try {
     await callGemini("接続テストです。", "ok を true にして返してください。", S.obj({ ok: S.bool("常にtrue") }), 0);
-    setStatus(`保存しました。接続OK（${$("model").value.trim() || "gemini-flash-latest"}）`, "ok");
+    setStatus(`保存しました。接続OK（${state.usedModel}）`, "ok");
   } catch (err) {
     setStatus(err.message, "ng");
   } finally {
@@ -815,7 +849,9 @@ function init() {
     levels.append(b);
   }
   $("apiKey").value = store.get("apiKey", "");
-  $("model").value = store.get("model", "") || "gemini-flash-latest";
+  // 旧バージョンの既定値は「自動」に移行する
+  if (store.get("model", "") === "gemini-flash-latest") store.set("model", "");
+  $("model").value = store.get("model", "");
   $("soundToggle").checked = store.get("sound", "1") === "1";
   selectLevel(Number(store.get("level", "3")));
 
