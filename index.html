@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>言い返しシミュレーター</title>
+  <meta name="description" content="アンチコメントに言い返す欲求を叶える、レスバ・シミュレーションゲーム" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- ===== 設定画面 ===== -->
+    <section id="setup" class="screen active">
+      <header class="setup-hero">
+        <div class="logo">💬⚡</div>
+        <h1>言い返し<br /><span>シミュレーター</span></h1>
+        <p class="tagline">現実では言い返せないアンチコメントに、ここで思いっきり言い返そう。</p>
+      </header>
+
+      <div class="card">
+        <h2>① Gemini APIキー</h2>
+        <p class="hint">
+          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>
+          で無料のAPIキーを発行して貼り付けてください。キーはこのブラウザ内(localStorage)にだけ保存され、Google以外には送信されません。
+        </p>
+        <div class="row">
+          <input id="apiKey" type="password" placeholder="AIza..." autocomplete="off" spellcheck="false" />
+          <button id="toggleKey" class="ghost small" type="button">表示</button>
+        </div>
+        <details class="advanced">
+          <summary>モデル設定（エラー時に変更）</summary>
+          <label class="field">
+            <span>モデル名</span>
+            <input id="model" list="modelList" value="gemini-flash-latest" spellcheck="false" />
+            <datalist id="modelList">
+              <option value="gemini-flash-latest"></option>
+              <option value="gemini-flash-lite-latest"></option>
+              <option value="gemini-2.5-flash"></option>
+              <option value="gemini-2.5-flash-lite"></option>
+            </datalist>
+          </label>
+          <p class="hint">無料枠の回数制限(429エラー)に当たったら、別のモデルに切り替えると続けられることがあります。</p>
+        </details>
+      </div>
+
+      <div class="card">
+        <h2>② 相手のレベル</h2>
+        <div id="levels" class="levels"></div>
+        <p id="levelDesc" class="level-desc"></p>
+      </div>
+
+      <div class="card">
+        <h2>③ あなたの投稿</h2>
+        <label class="field">
+          <span>表示名</span>
+          <input id="userName" maxlength="20" value="あなた" />
+        </label>
+        <div id="presets" class="presets"></div>
+        <textarea id="postText" rows="3" maxlength="200" placeholder="SNSに投稿する内容を書いてください"></textarea>
+      </div>
+
+      <button id="startBtn" class="primary big" type="button">投稿してスタート</button>
+      <p id="setupError" class="error" role="alert"></p>
+
+      <footer class="foot">
+        効果音 <label class="switch"><input id="soundToggle" type="checkbox" checked /><span></span></label>
+      </footer>
+    </section>
+
+    <!-- ===== ゲーム画面 ===== -->
+    <section id="game" class="screen">
+      <header class="topbar">
+        <button id="backBtn" class="icon-btn" type="button" aria-label="戻る">←</button>
+        <div class="brand">Chirpy</div>
+        <div class="meta"><span id="levelBadge" class="badge"></span><span id="turnInfo" class="turn"></span></div>
+      </header>
+
+      <div class="gauge-wrap">
+        <div class="gauge-labels"><span>言い負け</span><span>論破ゲージ</span><span>論破</span></div>
+        <div class="gauge">
+          <div id="gaugeFill" class="gauge-fill"></div>
+          <div class="gauge-center"></div>
+          <div id="gaugeKnob" class="gauge-knob">⚔️</div>
+        </div>
+        <div id="combo" class="combo"></div>
+      </div>
+
+      <main id="feed" class="feed"></main>
+
+      <form id="composer" class="composer">
+        <textarea id="replyInput" rows="2" maxlength="280" placeholder="言い返してやれ…"></textarea>
+        <div class="composer-actions">
+          <button id="giveUpBtn" class="ghost small" type="button">降参</button>
+          <span id="charCount" class="char-count">0/280</span>
+          <button id="sendBtn" class="primary" type="submit">返信</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- 演出レイヤー -->
+  <div id="flash" class="flash"></div>
+  <div id="fx" class="fx" aria-live="polite"></div>
+
+  <!-- 結果モーダル -->
+  <div id="result" class="modal" hidden>
+    <div class="modal-body">
+      <div id="resultTitle" class="result-title"></div>
+      <p id="resultSub" class="result-sub"></p>
+      <dl id="resultStats" class="stats"></dl>
+      <div id="bestReply" class="best-reply"></div>
+      <div class="modal-actions">
+        <button id="retryBtn" class="primary" type="button">同じ設定でもう一度</button>
+        <button id="shareBtn" class="ghost" type="button">結果をポスト</button>
+        <button id="toSetupBtn" class="ghost" type="button">設定に戻る</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
